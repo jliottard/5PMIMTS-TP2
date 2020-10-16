@@ -4,6 +4,8 @@
 #include <systemc>
 #include "rendezvous_ifs.h"
 
+using namespace sc_core;
+
 SC_MODULE(Consommateur)
 {
 	sc_port<rendezvous_in_if<int> >    entree;

@@ -4,6 +4,7 @@
 #include "RendezVous.h"
 
 using namespace std;
+using namespace sc_core;
 
 int sc_main(int, char**)
 {

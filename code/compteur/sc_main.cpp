@@ -3,6 +3,8 @@
 #include "Testbench.h"
 
 using namespace std;
+using namespace sc_core;
+using namespace sc_dt;
 
 int sc_main(int, char**)
 {
@@ -22,6 +24,7 @@ int sc_main(int, char**)
 	sc_trace_file *trace;
 
 	trace = sc_create_vcd_trace_file("trace");
+	trace->set_time_unit(1, SC_NS);
 
 	sc_trace(trace, sclk, "clk");
 	sc_trace(trace, sreset, "reset");

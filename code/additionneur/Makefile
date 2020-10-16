@@ -13,7 +13,7 @@ INCLUDES = -I. -I$(SYSTEMC)/include
 
 CC = g++
 CPPFLAGS = $(INCLUDES)
-CXXFLAGS = -Wno-deprecated -O0
+CXXFLAGS = -Wno-deprecated -O0 -g -std=c++17
 
 LD = $(CC)
 LDFLAGS = 

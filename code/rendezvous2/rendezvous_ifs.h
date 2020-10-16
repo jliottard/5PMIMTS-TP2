@@ -3,6 +3,8 @@
 
 #include <systemc>
 
+using namespace sc_core;
+
 template<typename T>
 class rendezvous_in_if : virtual public sc_interface
 {

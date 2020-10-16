@@ -3,6 +3,8 @@
 
 #include <systemc>
 
+using namespace sc_core;
+
 SC_MODULE(Producteur)
 {
 	sc_port<sc_fifo_out_if<int> >    sortie;

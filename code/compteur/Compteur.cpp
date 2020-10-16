@@ -1,5 +1,7 @@
 #include "Compteur.h"
 
+using namespace sc_core;
+
 Compteur::Compteur(sc_module_name name) : sc_module(name)
 {
 	SC_METHOD(calcul);

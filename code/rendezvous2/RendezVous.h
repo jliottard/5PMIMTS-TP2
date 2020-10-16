@@ -4,6 +4,8 @@
 #include <systemc>
 #include "rendezvous_ifs.h"
 
+using namespace sc_core;
+
 template<typename T>
 class RendezVous : public sc_prim_channel,
 		   virtual public rendezvous_in_if<T>,

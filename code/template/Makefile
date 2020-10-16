@@ -1,7 +1,7 @@
-all: template
+all: template max-template tab-template
 
 %: %.cpp
-	g++ -g $< -o $@ -Wall -Wextra
+	g++ --std=c++17 -g $< -o $@ -Wall -Wextra
 
-clean: template
-	rm -f $<
+clean:
+	rm -f template max-template tab-template

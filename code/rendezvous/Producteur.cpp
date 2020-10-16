@@ -1,5 +1,7 @@
 #include "Producteur.h"
 
+using namespace sc_core;
+
 Producteur::Producteur(sc_module_name name) : sc_module(name)
 {
 	SC_THREAD(production);

@@ -9,7 +9,7 @@ int sc_main(int, char**)
 {
 	AetB             aetb("AetB");
 	C                c("C");
-	QuickChannel     q1("q1"), q2("q2");
+	QuickChannel     q1("q1"), q2("q2"), q3("q3");
 
 	aetb.port1.bind(q1);
 	c.port1.bind(q1);

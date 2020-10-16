@@ -4,6 +4,8 @@
 #include <systemc>
 #include "rendezvous_ifs.h"
 
+using namespace sc_core;
+
 SC_MODULE(Producteur)
 {
 	sc_port<rendezvous_out_if<int> >    sortie;
