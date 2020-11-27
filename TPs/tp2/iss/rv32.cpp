@@ -38,7 +38,11 @@
 #include <cstring>
 #include <math.h>
 #include <fenv.h>
+/* 
+ * gcc fp C99 support is broken on ensimag machines
 #pragma STDC FENV_ACCESS ON
+ */
+#define issignaling(x) 0
 #include <cassert>
 #include "soclib_endian.h"
 #include "arithmetics.h"

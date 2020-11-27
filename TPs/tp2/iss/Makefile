@@ -12,9 +12,11 @@ ROOT=../..
 WITH_SDL=yesPlease
 include $(ROOT)/Makefile.common
 
-EXTRALDLIBS += ../hardware/libhardware.a ../elf-loader/libloader.a -lm
+EXTRALDLIBS += ../hardware/libhardware.a ../elf-loader/libloader.a
 CXXEXTRAFLAGS = -g -I../hardware
 CEXTRAFLAGS = -I.
+
+LDLIBS += -lm
 
 $(TARGET): $(OBJS) $(EXTRALDLIBS) $(ENSITLM_LIB)
 	$(LD) $(ESOFT_OBJS) $(OBJS) -o $@ $(LDFLAGS) $(EXTRALDLIBS) $(LDLIBS)
