@@ -20,20 +20,16 @@ ENSITLM_LIB=$(ENSITLM)/libensitlm.a
 CLANG_FORMAT=clang-format
 
 ifdef WITH_SDL
-ifeq ($(strip $(shell which sdl-config)),)
    ifeq ($(strip $(shell which sdl2-config)),)
-      $(error SDL library not found)
+      $(error SDL library not found, please install libsdl2-dev)
    else
       SDLCFG := sdl2-config
    endif
+   SDLLIB = $(shell ${SDLCFG} --libs)
+   SDLCC = $(shell ${SDLCFG} --cflags)
 else
-   SDLCFG := sdl-config
-endif
-SDLLIB = $(shell ${SDLCFG} --libs)
-SDLCC = $(shell ${SDLCFG} --cflags)
-else
-SDLLIB =
-SDSCC =
+   SDLLIB =
+   SDSCC =
 endif
 
 # guess target os name used by systemc's configure
