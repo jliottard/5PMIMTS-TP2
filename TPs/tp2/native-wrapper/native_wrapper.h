@@ -6,7 +6,7 @@
 SC_MODULE(NativeWrapper) {
 
 	ensitlm::initiator_socket<NativeWrapper> socket;
-	sc_core::sc_in<bool>                            irq;
+	sc_core::sc_in<bool>                     irq;
 
 private:
 	SC_CTOR(NativeWrapper);
