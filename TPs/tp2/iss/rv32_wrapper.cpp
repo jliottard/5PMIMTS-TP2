@@ -86,7 +86,7 @@ void RV32Wrapper::run_iss(void)
 			m_iss.getInstructionRequest(ins_asked, ins_addr);
 
 			// FIXME: riscv accepts compressed instructions, thus instructions
-			// may be half-word aligned. 
+			// may be half-word aligned.
 			// For now assume the rv32im profile
 			if (ins_asked) {
 				/* The ISS requested an instruction.

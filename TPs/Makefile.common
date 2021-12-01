@@ -21,7 +21,7 @@ CLANG_FORMAT=clang-format
 
 ifdef WITH_SDL
    ifeq ($(strip $(shell which sdl2-config)),)
-      $(error SDL library not found, please install libsdl2-dev)
+      $(error SDL2 library not found, please install libsdl2-dev)
    else
       SDLCFG := sdl2-config
    endif
