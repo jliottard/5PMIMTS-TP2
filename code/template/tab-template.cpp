@@ -5,6 +5,7 @@ using namespace std;
 template<int nbcases>
 class TableauInt
 {
+public:
    int cases[nbcases];
 };
 
@@ -30,6 +31,7 @@ public:
 int main(void)
 {
    TableauInt<10> t;
+   t.cases[3] = 12;
    TableauDynamique<int> *t2;
    t2 = new TableauDynamique<int>(20);
    delete t2;

@@ -3,9 +3,6 @@
  * Initial author: Matthieu Moy                                     *
  ********************************************************************/
 
-// Compiler avec g++ heritage.cpp -o heritage
-// Executer avec ./heritage
-
 #include <iostream>
 
 using namespace std;

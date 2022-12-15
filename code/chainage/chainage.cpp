@@ -21,7 +21,7 @@ public:
 		 * m_name est const (error: assignment of read-only
 		 * member ‘Base::m_name’).
 		 */
-	}
+		}
 	void print() {
 		cout << "My name is " << m_name << endl;
 	}

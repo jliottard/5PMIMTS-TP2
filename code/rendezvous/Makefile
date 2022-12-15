@@ -9,4 +9,5 @@ include $(ROOT)/Makefile.common
 $(TARGET): $(OBJS)
 	$(LD) $(OBJS) -o $@ $(LDFLAGS) $(LDLIBS)
 
-
+clean :
+	$(RM) $(OBJS)

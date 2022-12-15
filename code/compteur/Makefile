@@ -10,7 +10,7 @@ ARCH = $(shell uname -m | sed -e 's/x86_64.*/linux64/' -e 's/i.86.*/linux/')
 INCLUDES = -I. -I$(SYSTEMC)/include
 CC = g++
 CPPFLAGS = $(INCLUDES)
-CXXFLAGS = -Wno-deprecated -O0 -Wall -g -std=c++17
+CXXFLAGS = -Wno-deprecated -O0 -Wall -g
 
 LD = $(CC)
 LDFLAGS = 

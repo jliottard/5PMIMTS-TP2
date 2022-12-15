@@ -3,7 +3,7 @@ $(error SYSTEMCROOT is not set)
 endif
 
 minimal: minimal.cpp
-	g++ minimal.cpp -std=c++17 -Wall -Wno-deprecated \
+	g++ minimal.cpp -Wall -Wno-deprecated \
 		-I $(SYSTEMCROOT)/include \
 		-L $(SYSTEMCROOT)/lib-gccsparcOS5/ \
 		-L $(SYSTEMCROOT)/lib-linux/ \

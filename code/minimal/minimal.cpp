@@ -16,10 +16,10 @@ SC_MODULE(writer) {
 	void compute (void) {
 		bool val = false;
 		while (true) {
-			wait(1, SC_NS);
 			val = !val;
 			cout << name() << ": sending " << val << endl;
 			out.write(val);
+			wait(1, SC_NS);
 		}
 	}
 	SC_CTOR(writer) {
@@ -41,12 +41,12 @@ SC_MODULE(receiver) {
 };
 
 int sc_main(int argc, char ** argv) {
-	writer w("writer");
 	receiver r("receiver");
+	writer w("writer");
 	sc_signal<bool> s;
 
-	w.out.bind(s);
-	r.in.bind(s);
+	w.out(s);
+	r.in(s);
 	sc_start(100, SC_NS);
 	return 0;
 }
