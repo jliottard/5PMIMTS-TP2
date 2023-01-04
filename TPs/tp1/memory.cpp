@@ -13,7 +13,7 @@ Memory::~Memory() {
 
 tlm::tlm_response_status Memory::write(const ensitlm::addr_t &a,
                                        const ensitlm::data_t &d) {
-	cout << "Memory(\"" <<  name() << "\"): write transaction, data: " << std::dec << d << " at @" << std::hex << a << endl;
+	//cout << "Memory(\"" <<  name() << "\"): write transaction, data: " << std::dec << d << " at @" << std::hex << a << endl;
 	if (size <= a / 4 || a % 4 != 0) {
 		return tlm::TLM_ADDRESS_ERROR_RESPONSE;
 	}
@@ -27,6 +27,6 @@ tlm::tlm_response_status Memory::read(const ensitlm::addr_t &a,
 		return tlm::TLM_ADDRESS_ERROR_RESPONSE;
 	}
 	d = storage[a / 4];
-	cout << "Memory(\"" <<  name() << "\"): read transaction, data: " << std::dec << d << " at @" << std::hex << a << endl;
+	//cout << "Memory(\"" <<  name() << "\"): read transaction, data: " << std::dec << d << " at @" << std::hex << a << endl;
 	return tlm::TLM_OK_RESPONSE;
 }
