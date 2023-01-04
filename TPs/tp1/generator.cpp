@@ -2,37 +2,53 @@
 
 using namespace std;
 
+void Generator::error_handling(tlm::tlm_response_status status) {
+	switch (status) {
+		case tlm::TLM_OK_RESPONSE:
+			break;
+		case tlm::TLM_INCOMPLETE_RESPONSE:
+			cout << "Generator: incomplete response" << endl;
+			break;
+		case tlm::TLM_GENERIC_ERROR_RESPONSE:
+			cout << "Generator: generic error response" << endl;
+			break;
+		case tlm::TLM_ADDRESS_ERROR_RESPONSE:
+			cout << "Generator: address error response" << endl;
+			break;
+		case tlm::TLM_COMMAND_ERROR_RESPONSE:
+			cout << "Generator: command error response" << endl;
+			break;
+		case tlm::TLM_BURST_ERROR_RESPONSE:
+			cout << "Generator: burst error response" << endl;
+			break;
+		case tlm::TLM_BYTE_ENABLE_ERROR_RESPONSE:
+			cout << "Generator: byte enable error response" << endl;
+			break;
+		default:
+			break;
+	}
+}
+
 void Generator::process(void) {
+	uint32_t memory_size = 0x100;
+	ensitlm::addr_t start_address = 0x10000000;
+
 	ensitlm::data_t data = 0;
-	ensitlm::addr_t address = 0x10000000;
-	for (int i = 0; i < 10; i++) {
-		cout << "Generator(\"" <<  name() << "\"): sending data: " << std::dec << data << " at @" << std::hex << address << endl;
-		tlm::tlm_response_status response = initiator.write(address, data);
-		switch (response) {
-			case tlm::TLM_OK_RESPONSE:
-				break;
-			case tlm::TLM_INCOMPLETE_RESPONSE:
-				cout << "Generator: incomplete response" << endl;
-				break;
-			case tlm::TLM_GENERIC_ERROR_RESPONSE:
-				cout << "Generator: generic error response" << endl;
-				break;
-			case tlm::TLM_ADDRESS_ERROR_RESPONSE:
-				cout << "Generator: address error response" << endl;
-				break;
-			case tlm::TLM_COMMAND_ERROR_RESPONSE:
-				cout << "Generator: command error response" << endl;
-				break;
-			case tlm::TLM_BURST_ERROR_RESPONSE:
-				cout << "Generator: burst error response" << endl;
-				break;
-			case tlm::TLM_BYTE_ENABLE_ERROR_RESPONSE:
-				cout << "Generator: byte enable error response" << endl;
-				break;
-			default:
-				break;
-		}
+	ensitlm::addr_t end_address = start_address + memory_size;
+	// Write in memory
+	for (ensitlm::addr_t address = start_address; address < end_address; address += 4) {
+		cout << "Generator(\"" <<  name() << "\"): sending data: " << std::dec << data << " at memory@" << std::hex << address << endl;
+		tlm::tlm_response_status response_status = initiator.write(address, data);
+		error_handling(response_status);
 		data++;
+	}
+	// Read in memory
+	cout << "Generator: Read the memory phase ==========================" << endl;
+	data = 0;
+	for (ensitlm::addr_t address = start_address; address < end_address; address += 4) {
+		tlm::tlm_response_status response = initiator.read(address, data);
+		cout << "Generator(\"" <<  name() << "\"): receiving data: " << std::dec << data << " from memory@" << std::hex << address << endl;
+		error_handling(response);
 		address += 4;
 	}
 }

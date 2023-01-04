@@ -6,4 +6,7 @@ struct Generator : sc_core::sc_module {
 	void process(void);
 
 	SC_CTOR(Generator);
+
+	private:
+	void error_handling(tlm::tlm_response_status status);
 };
