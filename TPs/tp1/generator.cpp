@@ -37,7 +37,7 @@ void Generator::process(void) {
 	ensitlm::addr_t end_address = start_address + memory_size;
 	// Write in memory
 	for (ensitlm::addr_t address = start_address; address < end_address; address += 4) {
-		// cout << "Generator(\"" <<  name() << "\"): sending data: " << std::dec << data << " at memory@" << std::hex << address << endl;
+		cout << "Generator(\"" <<  name() << "\"): sending data: " << std::dec << data << " at memory@" << std::hex << address << endl;
 		tlm::tlm_response_status response_status = initiator.write(address, data);
 		error_handling(response_status);
 		data++;
@@ -46,9 +46,8 @@ void Generator::process(void) {
 	data = 0;
 	for (ensitlm::addr_t address = start_address; address < end_address; address += 4) {
 		tlm::tlm_response_status response = initiator.read(address, data);
-		// cout << "Generator(\"" <<  name() << "\"): receiving data: " << std::dec << data << " from memory@" << std::hex << address << endl;
+		cout << "Generator(\"" <<  name() << "\"): receiving data: " << std::dec << data << " from memory@" << std::hex << address << endl;
 		error_handling(response);
-		address += 4;
 	}
 }
 

@@ -2,8 +2,8 @@
 
 using namespace std;
 
-Memory::Memory(sc_core::sc_module_name name, uint32_t storage_size_in_32_bits) : sc_core::sc_module(name) {
-	size = storage_size_in_32_bits / 4;
+Memory::Memory(sc_core::sc_module_name name, uint32_t storage_size_in_bytes) : sc_core::sc_module(name) {
+	size = storage_size_in_bytes / 4;
 	storage = new ensitlm::data_t[size];
 }
 
