@@ -3,7 +3,9 @@
 
 struct Generator : sc_core::sc_module {
 	ensitlm::initiator_socket<Generator> initiator;
+	sc_core::sc_in<bool> interruption_port;
 	void process(void);
+	void empty(void);
 
 	SC_CTOR(Generator);
 

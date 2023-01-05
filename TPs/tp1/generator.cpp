@@ -53,6 +53,8 @@ void Generator::process(void) {
 	}
 }
 
+void Generator::empty(void) {}
+
 Generator::Generator(sc_core::sc_module_name name) : sc_core::sc_module(name) {
-	SC_THREAD(process);
+	SC_THREAD(empty);
 }
