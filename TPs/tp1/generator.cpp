@@ -46,8 +46,10 @@ void Generator::process(void) {
 	data = 0;
 	for (ensitlm::addr_t address = start_address; address < end_address; address += 4) {
 		tlm::tlm_response_status response = initiator.read(address, data);
-		cout << "Generator(\"" <<  name() << "\"): receiving data: " << std::dec << data << " from memory@" << std::hex << address << endl;
 		error_handling(response);
+		if (response == tlm::TLM_OK_RESPONSE) {
+			cout << "Generator(\"" <<  name() << "\"): receiving data: " << std::dec << data << " from memory@" << std::hex << address << endl;
+		} 
 	}
 }
 

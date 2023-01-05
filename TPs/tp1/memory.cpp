@@ -8,7 +8,7 @@ Memory::Memory(sc_core::sc_module_name name, uint32_t storage_size_in_bytes) : s
 }
 
 Memory::~Memory() {
-	delete storage;
+	delete[] storage;
 }
 
 tlm::tlm_response_status Memory::write(const ensitlm::addr_t &a,
