@@ -1,4 +1,6 @@
 #include "generator.h"
+#include "LCDC_registermap.h"
+#include "memory.h"
 
 using namespace std;
 
@@ -29,9 +31,10 @@ void Generator::error_handling(tlm::tlm_response_status status) {
 	}
 }
 
-void Generator::process(void) {
-	uint32_t memory_size = 0x100;
-	ensitlm::addr_t start_address = 0x10000000;
+// check memory write and read
+void Generator::testMemory(void) {
+	uint32_t memory_size = MEMORY_SIZE_IN_BYTE;
+	ensitlm::addr_t start_address = 0x0;
 
 	ensitlm::data_t data = 0;
 	ensitlm::addr_t end_address = start_address + memory_size;
@@ -53,8 +56,17 @@ void Generator::process(void) {
 	}
 }
 
+// check LCDC's start phase
+void Generator::testLCDC(void) {
+	ensitlm::addr_t reg_start_address = MEMORY_SIZE_IN_BYTE + 4 + LCDC_START_REG;
+	ensitlm::data_t data = 0x1;
+	cout << "Generator(\"" <<  name() << "\"): sending start: " << std::dec << data << " at memory@" << std::hex << reg_start_address << endl;
+	tlm::tlm_response_status response_status = initiator.write(reg_start_address, data);
+	error_handling(response_status);
+}
+
 void Generator::empty(void) {}
 
 Generator::Generator(sc_core::sc_module_name name) : sc_core::sc_module(name) {
-	SC_THREAD(empty);
+	SC_THREAD(testLCDC);
 }

@@ -1,5 +1,13 @@
+#ifndef MEMORY_H
+#define MEMORY_H
+
 #include "ensitlm.h"
 #include "bus.h"
+#include "LCDC.h"
+
+static const uint32_t EMBEDDED_CODE_MEMORY_SIZE_IN_BYTE = 10240;
+static const uint32_t VIDEO_MEMORY_SIZE_IN_BYTE = LCDC::kWidth * LCDC::kHeight;
+static const uint32_t MEMORY_SIZE_IN_BYTE = EMBEDDED_CODE_MEMORY_SIZE_IN_BYTE + VIDEO_MEMORY_SIZE_IN_BYTE;
 
 struct Memory : sc_core::sc_module {
 	ensitlm::target_socket<Memory> target;
@@ -15,3 +23,5 @@ struct Memory : sc_core::sc_module {
 	Memory(sc_core::sc_module_name name, uint32_t storage_size_in_bytes);
 	~Memory();
 };
+
+#endif

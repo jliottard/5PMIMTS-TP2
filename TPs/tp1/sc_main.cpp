@@ -13,18 +13,15 @@ int sc_main(int argc, char **argv)
 
 	Generator generator("Generator1");
 	Bus bus("Bus");
-	uint32_t embedded_code_memory_size_in_byte = 10240;
-	uint32_t video_memory_size_in_byte = 340 * 240;
-	uint32_t memory_size_in_byte = video_memory_size_in_byte + video_memory_size_in_byte;
-	Memory memory("Memory", memory_size_in_byte);
+	Memory memory("Memory", MEMORY_SIZE_IN_BYTE);
 
-	bus.map(memory.target, 0x0, memory_size_in_byte);
+	bus.map(memory.target, 0x0, MEMORY_SIZE_IN_BYTE);
 	generator.initiator.bind(bus.target);
 	bus.initiator.bind(memory.target);
 
 	LCDC lcdc("LCDC", sc_time(1.0 / 25, SC_SEC));
 	uint32_t lcdc_address_range_in_byte = 32 * 3;
-	bus.map(lcdc.target_socket, memory_size_in_byte + 1, lcdc_address_range_in_byte);
+	bus.map(lcdc.target_socket, MEMORY_SIZE_IN_BYTE + 4, lcdc_address_range_in_byte);
 	lcdc.initiator_socket.bind(bus.target);
 	lcdc.target_socket.bind(bus.initiator);
 	
