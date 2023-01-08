@@ -10,6 +10,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+#define LCDC_ADDRESS_RANGE_SIZE (32 * 3)
+
 struct LCDC : sc_core::sc_module {
 	ensitlm::initiator_socket<LCDC> initiator_socket;
 	ensitlm::target_socket<LCDC> target_socket;

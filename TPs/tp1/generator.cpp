@@ -1,6 +1,7 @@
 #include "generator.h"
 #include "LCDC_registermap.h"
 #include "memory.h"
+#include "ROM.h"
 
 using namespace std;
 
@@ -117,8 +118,80 @@ void Generator::whiteImage(void) {
 	error_handling(response_status);
 }
 
+void Generator::convert_rom_to_lcdc_pixels(ensitlm::data_t rom_pixels, ensitlm::data_t &first_part_pixels, ensitlm::data_t &second_part_pixels) {
+	ensitlm::data_t lcdc_first_part_pixels = 0x0;
+	ensitlm::data_t lcdc_second_part_pixels = 0x0;
+	uint32_t mask = 0;
+	uint32_t four_bits_size = 4;
+	for (uint32_t pixel_index = 0; pixel_index < 4; pixel_index++) {
+		mask = 0xF0000000 >> (pixel_index * four_bits_size);
+		lcdc_first_part_pixels |= (mask & rom_pixels) >> (pixel_index * four_bits_size);
+
+		mask = 0x0000F000 >> (pixel_index * four_bits_size);
+		lcdc_second_part_pixels |= ((mask & rom_pixels) << (4 * four_bits_size)) >> (pixel_index * four_bits_size);
+	}
+	first_part_pixels = lcdc_first_part_pixels;
+	second_part_pixels = lcdc_second_part_pixels;
+}
+
+void Generator::writeRomImage(void) {
+	// Init the ADDR_REG of the LCDC
+	ensitlm::addr_t addr_reg_address = LCD_CONTROLER_START_ADDRESS + LCDC_ADDR_REG;
+	ensitlm::data_t video_memory_buffer_address = VIDEO_MEMORY_START_ADDRESS;
+	print_debug(addr_reg_address, video_memory_buffer_address);
+	tlm::tlm_response_status response_status = initiator.write(addr_reg_address, video_memory_buffer_address);
+	error_handling(response_status);
+
+	// Transfert ROM image to LCDC image format in Video memory
+	ensitlm::data_t rom_eight_pixels;
+	ensitlm::addr_t cur_rom_address_pointer = ROM_START_ADDRESS;
+	ensitlm::data_t lcdc_first_part_pixels;
+	ensitlm::data_t lcdc_second_part_pixels;
+	ensitlm::addr_t cur_video_address = VIDEO_MEMORY_START_ADDRESS;
+	while (cur_rom_address_pointer < ROM_START_ADDRESS + ROM_SIZE) {
+		// Request ROM
+		response_status = initiator.read(cur_rom_address_pointer, rom_eight_pixels);
+		error_handling(response_status);
+		// Convert ROM pixels to LCDC pixels
+		convert_rom_to_lcdc_pixels(rom_eight_pixels, lcdc_first_part_pixels, lcdc_second_part_pixels);
+		// Write Memory
+		response_status = initiator.write(cur_video_address, lcdc_first_part_pixels);
+		error_handling(response_status);
+		if (response_status == tlm::TLM_ADDRESS_ERROR_RESPONSE) {
+			cout << "breaking in first part pixel writting" << endl;
+			return;
+		}
+		cur_video_address += 4;
+		response_status = initiator.write(cur_video_address, lcdc_second_part_pixels);
+		error_handling(response_status);
+		if (response_status == tlm::TLM_ADDRESS_ERROR_RESPONSE) {
+			cout << "breaking in second part pixel writting" << endl;
+			return;
+		}
+		cur_video_address += 4;
+		cur_rom_address_pointer += 4;
+	}
+
+	// Start the LCDC
+	ensitlm::addr_t start_reg_address = LCD_CONTROLER_START_ADDRESS + LCDC_START_REG;
+	ensitlm::data_t start_trigger = 1;
+	print_debug(start_reg_address, start_trigger);
+	response_status = initiator.write(start_reg_address, start_trigger);
+	if (response_status == tlm::TLM_ADDRESS_ERROR_RESPONSE) {
+		return;
+	}
+	error_handling(response_status);
+
+	// Refresh LCDC
+	ensitlm::addr_t interrupt_register_address = LCD_CONTROLER_START_ADDRESS + LCDC_INT_REG;
+	ensitlm::data_t deassert_interrupt_data = 0;
+	print_debug(interrupt_register_address, deassert_interrupt_data);
+	response_status = initiator.write(interrupt_register_address, deassert_interrupt_data);
+	error_handling(response_status);
+}
+
 void Generator::idle(void) {}
 
 Generator::Generator(sc_core::sc_module_name name) : sc_core::sc_module(name) {
-	SC_THREAD(whiteImage);
+	SC_THREAD(writeRomImage);
 }

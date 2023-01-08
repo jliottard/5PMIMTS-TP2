@@ -3,6 +3,7 @@
 #include "memory.h"
 #include "bus.h"
 #include "LCDC.h"
+#include "ROM.h"
 
 using namespace sc_core;
 
@@ -21,16 +22,20 @@ int sc_main(int argc, char **argv)
 	bus.initiator.bind(memory.target);
 
 	LCDC lcdc("LCDC", sc_time(1.0 / 25, SC_SEC));
-	uint32_t lcdc_address_range_in_byte = 32 * 3;
 	// LCDC ports: [87040; 87096]
-	std::cout << "LCDC ports: [" << LCD_CONTROLER_START_ADDRESS << ";" << LCD_CONTROLER_START_ADDRESS + lcdc_address_range_in_byte << "[" << std::endl;
-	bus.map(lcdc.target_socket, LCD_CONTROLER_START_ADDRESS, lcdc_address_range_in_byte);
+	std::cout << "LCDC ports: [" << LCD_CONTROLER_START_ADDRESS << ";" << LCD_CONTROLER_START_ADDRESS + LCDC_ADDRESS_RANGE_SIZE << "[" << std::endl;
+	bus.map(lcdc.target_socket, LCD_CONTROLER_START_ADDRESS, LCDC_ADDRESS_RANGE_SIZE);
 	lcdc.initiator_socket.bind(bus.target);
 	lcdc.target_socket.bind(bus.initiator);
 	
 	sc_signal<bool> lcdc_generator_interruption_signal("lcdc_generator_interruption_signal");
 	lcdc.display_intr.bind(lcdc_generator_interruption_signal);
 	generator.interruption_port.bind(lcdc_generator_interruption_signal);
+
+	ROM rom("ROM");
+	// ROM ports : [87 096; 125 496]
+	bus.map(rom.socket, ROM_START_ADDRESS, ROM_SIZE);
+	bus.initiator.bind(rom.socket);
 
 	sc_core::sc_start();
 	return 0;
