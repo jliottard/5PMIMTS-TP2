@@ -13,15 +13,18 @@ int sc_main(int argc, char **argv)
 
 	Generator generator("Generator1");
 	Bus bus("Bus");
-	Memory memory("Memory", MEMORY_SIZE_IN_BYTE);
-
-	bus.map(memory.target, 0x0, MEMORY_SIZE_IN_BYTE);
+	Memory memory("Memory", TOTAL_MEMORY_SIZE_IN_BYTE);
+	// Memory ports: [0; 87040[
+	std::cout << "Memory ports: [" << MEMORY_START_ADDRESS << ";" << MEMORY_START_ADDRESS + TOTAL_MEMORY_SIZE_IN_BYTE << '[' << std::endl;
+	bus.map(memory.target, MEMORY_START_ADDRESS, TOTAL_MEMORY_SIZE_IN_BYTE);
 	generator.initiator.bind(bus.target);
 	bus.initiator.bind(memory.target);
 
 	LCDC lcdc("LCDC", sc_time(1.0 / 25, SC_SEC));
 	uint32_t lcdc_address_range_in_byte = 32 * 3;
-	bus.map(lcdc.target_socket, MEMORY_SIZE_IN_BYTE + 4, lcdc_address_range_in_byte);
+	// LCDC ports: [87040; 87096]
+	std::cout << "LCDC ports: [" << LCD_CONTROLER_START_ADDRESS << ";" << LCD_CONTROLER_START_ADDRESS + lcdc_address_range_in_byte << "[" << std::endl;
+	bus.map(lcdc.target_socket, LCD_CONTROLER_START_ADDRESS, lcdc_address_range_in_byte);
 	lcdc.initiator_socket.bind(bus.target);
 	lcdc.target_socket.bind(bus.initiator);
 	

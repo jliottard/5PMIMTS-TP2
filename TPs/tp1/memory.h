@@ -5,9 +5,10 @@
 #include "bus.h"
 #include "LCDC.h"
 
-static const uint32_t EMBEDDED_CODE_MEMORY_SIZE_IN_BYTE = 10240;
-static const uint32_t VIDEO_MEMORY_SIZE_IN_BYTE = LCDC::kWidth * LCDC::kHeight;
-static const uint32_t MEMORY_SIZE_IN_BYTE = EMBEDDED_CODE_MEMORY_SIZE_IN_BYTE + VIDEO_MEMORY_SIZE_IN_BYTE;
+static const uint32_t EMBEDDED_CODE_MEMORY_SIZE_IN_BYTE = 10 * 1024;
+static const uint32_t IMAGE_SIZE_IN_BYTE = LCDC::kWidth * LCDC::kHeight;
+static const uint32_t VIDEO_MEMORY_SIZE_IN_BYTE = IMAGE_SIZE_IN_BYTE;
+static const uint32_t TOTAL_MEMORY_SIZE_IN_BYTE = EMBEDDED_CODE_MEMORY_SIZE_IN_BYTE + VIDEO_MEMORY_SIZE_IN_BYTE;
 
 struct Memory : sc_core::sc_module {
 	ensitlm::target_socket<Memory> target;

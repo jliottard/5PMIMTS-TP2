@@ -31,42 +31,94 @@ void Generator::error_handling(tlm::tlm_response_status status) {
 	}
 }
 
+void Generator::print_debug(ensitlm::addr_t address, ensitlm::data_t data) {
+	cout << "Generator(\"" <<  name() << "\"): writing: 0x" << hex << data << " at @" << dec << address << endl;
+}
+
 // check memory write and read
 void Generator::testMemory(void) {
-	uint32_t memory_size = MEMORY_SIZE_IN_BYTE;
-	ensitlm::addr_t start_address = 0x0;
+	uint32_t memory_size = TOTAL_MEMORY_SIZE_IN_BYTE;
+	ensitlm::addr_t start_address = MEMORY_START_ADDRESS;
 
-	ensitlm::data_t data = 0;
+	ensitlm::data_t data_to_write = 0;
+	ensitlm::data_t read_data = 0;
 	ensitlm::addr_t end_address = start_address + memory_size;
-	// Write in memory
 	for (ensitlm::addr_t address = start_address; address < end_address; address += 4) {
-		cout << "Generator(\"" <<  name() << "\"): sending data: " << std::dec << data << " at memory@" << std::hex << address << endl;
-		tlm::tlm_response_status response_status = initiator.write(address, data);
+		// Write in memory
+		print_debug(address, data_to_write);	
+		tlm::tlm_response_status response_status = initiator.write(address, data_to_write);
 		error_handling(response_status);
-		data++;
-	}
-	// Read in memory
-	data = 0;
-	for (ensitlm::addr_t address = start_address; address < end_address; address += 4) {
-		tlm::tlm_response_status response = initiator.read(address, data);
+		// Read in memory
+		tlm::tlm_response_status response = initiator.read(address, read_data);
 		error_handling(response);
 		if (response == tlm::TLM_OK_RESPONSE) {
-			cout << "Generator(\"" <<  name() << "\"): receiving data: " << std::dec << data << " from memory@" << std::hex << address << endl;
-		} 
+			cout << "Generator(\"" <<  name() << "\"): receiving data: 0x" << hex << read_data << " at @" << dec << address << endl;
+		}
+		if (data_to_write != read_data) {
+			cout << "Error : written data and read data mismatch" << endl;
+			return;
+		}
+		data_to_write++;
 	}
 }
 
 // check LCDC's start phase
 void Generator::testLCDC(void) {
-	ensitlm::addr_t reg_start_address = MEMORY_SIZE_IN_BYTE + 4 + LCDC_START_REG;
-	ensitlm::data_t data = 0x1;
-	cout << "Generator(\"" <<  name() << "\"): sending start: " << std::dec << data << " at memory@" << std::hex << reg_start_address << endl;
-	tlm::tlm_response_status response_status = initiator.write(reg_start_address, data);
+	// Init LCDC ADDR_REG
+	ensitlm::addr_t addr_reg_address = VIDEO_MEMORY_START_ADDRESS + LCDC_ADDR_REG;
+	ensitlm::data_t data = VIDEO_MEMORY_START_ADDRESS;
+	tlm::tlm_response_status response_status = initiator.write(addr_reg_address, data);
+	error_handling(response_status);
+
+	// Test LDCC REG_START register
+	ensitlm::addr_t reg_start_address = VIDEO_MEMORY_START_ADDRESS + LCDC_START_REG;
+	data = 0x1;
+	print_debug(reg_start_address, data);
+	response_status = initiator.write(reg_start_address, data);
 	error_handling(response_status);
 }
 
-void Generator::empty(void) {}
+void Generator::whiteImage(void) {
+	// Init the ADDR_REG of the LCDC
+	ensitlm::addr_t addr_reg_address = LCD_CONTROLER_START_ADDRESS + LCDC_ADDR_REG;
+	ensitlm::data_t video_memory_buffer_address = VIDEO_MEMORY_START_ADDRESS;
+	print_debug(addr_reg_address, video_memory_buffer_address);
+	tlm::tlm_response_status response_status = initiator.write(addr_reg_address, video_memory_buffer_address);
+	error_handling(response_status);
+
+	// Write white pixels in video memory
+	ensitlm::data_t white_pixel = 0xFFFFFFFF;
+	ensitlm::addr_t video_mem_end_addr = VIDEO_MEMORY_START_ADDRESS + IMAGE_SIZE_IN_BYTE;
+	for (ensitlm::addr_t cur_pixel_addr = VIDEO_MEMORY_START_ADDRESS; cur_pixel_addr < video_mem_end_addr; cur_pixel_addr += 4) {
+		//print_debug(cur_pixel_addr, white_pixel);
+		response_status = initiator.write(cur_pixel_addr, white_pixel);
+		error_handling(response_status);
+		if (response_status == tlm::TLM_ADDRESS_ERROR_RESPONSE) {
+			cout << "breaking in white pixel writting" << endl;
+			return;
+		}
+	}
+
+	// Start the LCDC
+	ensitlm::addr_t start_reg_address = LCD_CONTROLER_START_ADDRESS + LCDC_START_REG;
+	ensitlm::data_t start_trigger = 1;
+	print_debug(start_reg_address, start_trigger);
+	response_status = initiator.write(start_reg_address, start_trigger);
+	if (response_status == tlm::TLM_ADDRESS_ERROR_RESPONSE) {
+		return;
+	}
+	error_handling(response_status);
+
+	// Refresh LCDC
+	ensitlm::addr_t interrupt_register_address = LCD_CONTROLER_START_ADDRESS + LCDC_INT_REG;
+	ensitlm::data_t deassert_interrupt_data = 0;
+	print_debug(interrupt_register_address, deassert_interrupt_data);
+	response_status = initiator.write(interrupt_register_address, deassert_interrupt_data);
+	error_handling(response_status);
+}
+
+void Generator::idle(void) {}
 
 Generator::Generator(sc_core::sc_module_name name) : sc_core::sc_module(name) {
-	SC_THREAD(testLCDC);
+	SC_THREAD(whiteImage);
 }
