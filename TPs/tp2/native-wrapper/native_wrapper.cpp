@@ -41,9 +41,11 @@ NativeWrapper * NativeWrapper::get_instance() {
 }
 
 NativeWrapper::NativeWrapper(sc_core::sc_module_name name) : sc_module(name),
-							     irq("irq"), interrupt(false)
+							     irq("irq")
 {
-	compute();
+	SC_THREAD(compute);
+	SC_METHOD(interrupt_handler_internal);
+	sensitive << irq;
 }
 
 void NativeWrapper::hal_write32(unsigned int addr, unsigned int data)
@@ -71,7 +73,6 @@ void NativeWrapper::hal_wait_for_irq()
 
 void NativeWrapper::compute()
 {
-	printf("computer is called");
 	main();
 }
 
