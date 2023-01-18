@@ -14,19 +14,19 @@ extern "C" int main();
 extern "C" void interrupt_handler();
 
 extern "C" void hal_write32(uint32_t addr, uint32_t data) {
-	abort(); // TODO
+	NativeWrapper::get_instance()->hal_write32(addr, data);
 }
 
 extern "C" unsigned int hal_read32(uint32_t addr) {
-	abort(); // TODO
+	return NativeWrapper::get_instance()->hal_read32(addr);
 }
 
 extern "C" void hal_cpu_relax() {
-	abort(); // TODO
+	NativeWrapper::get_instance()->hal_cpu_relax();
 }
 
 extern "C" void hal_wait_for_irq() {
-	abort(); // TODO
+	NativeWrapper::get_instance()->hal_wait_for_irq();
 }
 
 /* To keep it simple, the soft wrapper is a singleton, we can
@@ -41,37 +41,43 @@ NativeWrapper * NativeWrapper::get_instance() {
 }
 
 NativeWrapper::NativeWrapper(sc_core::sc_module_name name) : sc_module(name),
-							     irq("irq")
+							     irq("irq"), interrupt(false)
 {
-	abort(); // TODO
+	compute();
 }
 
 void NativeWrapper::hal_write32(unsigned int addr, unsigned int data)
 {
-	abort(); // TODO
+	socket.write(addr, data);
 }
 
 unsigned int NativeWrapper::hal_read32(unsigned int addr)
 {
-	abort(); // TODO
+	ensitlm::data_t data = 0;
+	socket.read(addr, data);	// the read function takes parameters as references
+	return data;
 }
 
 void NativeWrapper::hal_cpu_relax()
 {
-	abort(); // TODO
+	wait(1, sc_core::SC_MS);
 }
 
 void NativeWrapper::hal_wait_for_irq()
 {
-	abort(); // TODO
+	if (!interrupt) wait(interrupt_event);
+	interrupt = false;
 }
 
 void NativeWrapper::compute()
 {
-	abort(); // TODO
+	printf("computer is called");
+	main();
 }
 
 void NativeWrapper::interrupt_handler_internal()
 {
-	abort(); // TODO
+	interrupt = true;
+	interrupt_event.notify();
+	interrupt_handler();
 }
