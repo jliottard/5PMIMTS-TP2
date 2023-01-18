@@ -1171,6 +1171,7 @@ int main(void)
 			if (TEST_BIT(d, GPIO_BTN0)) {
 				break;
 			}
+         hal_wait_for_irq();
 		}
 	}
 
