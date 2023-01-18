@@ -37,8 +37,7 @@ main.o: ../main.c ../../address_map.h ../../hardware/offsets/gpio.h ../../hardwa
 # compile with target C compiler
 
 %.o: %.s
-	$(TARGET_CC) -c 
-#	echo "Rule for assembly not implemented"; exit 1
+	$(TARGET_CC) -c  $< -o $@
 
 .PHONY: clean realclean
 clean:
