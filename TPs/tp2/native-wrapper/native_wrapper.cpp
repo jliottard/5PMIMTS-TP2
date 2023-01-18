@@ -43,8 +43,8 @@ NativeWrapper * NativeWrapper::get_instance() {
 NativeWrapper::NativeWrapper(sc_core::sc_module_name name) : sc_module(name),
 							     irq("irq")
 {
-	SC_THREAD(compute);
-	SC_METHOD(interrupt_handler_internal);
+	SC_THREAD(compute);						// execute the software
+	SC_METHOD(interrupt_handler_internal);	// prepare to handle the VGA and timer interruptions
 	sensitive << irq;
 }
 
@@ -56,7 +56,7 @@ void NativeWrapper::hal_write32(unsigned int addr, unsigned int data)
 unsigned int NativeWrapper::hal_read32(unsigned int addr)
 {
 	ensitlm::data_t data = 0;
-	socket.read(addr, data);	// the read function takes parameters as references
+	socket.read(addr, data);
 	return data;
 }
 
