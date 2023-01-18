@@ -48,7 +48,7 @@ void RV32Wrapper::exec_data_request(enum iss_t::DataOperationType mem_type,
 	switch (mem_type) {
 		case iss_t::DATA_READ:
 			/* The ISS requested a data read (content of mem_addr into localbuf). */
-			abort(); // TODO
+			socket.read(mem_addr, localbuf);
 #ifdef DEBUG
 			std::cout << hex << "read    " << setw(10) << localbuf
 						 << " at address " << mem_addr << std::endl;
@@ -57,7 +57,7 @@ void RV32Wrapper::exec_data_request(enum iss_t::DataOperationType mem_type,
 			break;
 		case iss_t::DATA_WRITE:
 			/* The ISS requested a data write (mem_wdata at mem_addr). */
-			abort(); // TODO
+			socket.write(mem_addr, mem_wdata);
 #ifdef DEBUG
 			std::cout << hex << "wrote   " << setw(10) << mem_wdata
 						 << " at address " << mem_addr << std::endl;
