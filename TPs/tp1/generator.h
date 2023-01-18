@@ -12,20 +12,30 @@
 
 struct Generator : sc_core::sc_module {
 	ensitlm::initiator_socket<Generator> initiator;
-	sc_core::sc_in<bool> interruption_port;
+	//sc_core::sc_in<bool> interruption_port;
+	sc_core::sc_in<bool> irq;
 	void testMemory(void);
 	void testLCDC(void);
-	void whiteImage(void);
-	void writeRomImage(void);
+	void writeWhiteImage(void);
+	void writePixel(ensitlm::data_t pixel);
+	void testROM(void);
+	void main(void);
 	void idle(void);
 
 	SC_CTOR(Generator);
 
 	private:
+	sc_core::sc_event irq_event;
 	void error_handling(tlm::tlm_response_status status);
 	void print_debug(ensitlm::addr_t address, ensitlm::data_t data);
 	void convert_rom_to_lcdc_pixels(ensitlm::data_t rom_pixels, ensitlm::data_t& first_part_pixels, ensitlm::data_t& second_part_pixels);
 
+	void handle_irq(void);
+
+	void init_lcdc(void);
+	void start_lcdc(void);
+	void writeRomImage(void);
+	void refresh_lcdc(void);
 };
 
 #endif

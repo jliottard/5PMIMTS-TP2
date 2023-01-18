@@ -79,43 +79,26 @@ void Generator::testLCDC(void) {
 	error_handling(response_status);
 }
 
-void Generator::whiteImage(void) {
-	// Init the ADDR_REG of the LCDC
-	ensitlm::addr_t addr_reg_address = LCD_CONTROLER_START_ADDRESS + LCDC_ADDR_REG;
-	ensitlm::data_t video_memory_buffer_address = VIDEO_MEMORY_START_ADDRESS;
-	print_debug(addr_reg_address, video_memory_buffer_address);
-	tlm::tlm_response_status response_status = initiator.write(addr_reg_address, video_memory_buffer_address);
-	error_handling(response_status);
+void Generator::writeWhiteImage(void) {
+	init_lcdc();
+	writePixel(0xFFFFFFFF);
 
+	start_lcdc();
+
+	refresh_lcdc();
+}
+
+void Generator::writePixel(ensitlm::data_t pixel) {
 	// Write white pixels in video memory
-	ensitlm::data_t white_pixel = 0xFFFFFFFF;
 	ensitlm::addr_t video_mem_end_addr = VIDEO_MEMORY_START_ADDRESS + IMAGE_SIZE_IN_BYTE;
 	for (ensitlm::addr_t cur_pixel_addr = VIDEO_MEMORY_START_ADDRESS; cur_pixel_addr < video_mem_end_addr; cur_pixel_addr += 4) {
-		//print_debug(cur_pixel_addr, white_pixel);
-		response_status = initiator.write(cur_pixel_addr, white_pixel);
+		tlm::tlm_response_status response_status = initiator.write(cur_pixel_addr, pixel);
 		error_handling(response_status);
 		if (response_status == tlm::TLM_ADDRESS_ERROR_RESPONSE) {
-			cout << "breaking in white pixel writting" << endl;
+			cout << "breaking in pixel writting" << endl;
 			return;
 		}
 	}
-
-	// Start the LCDC
-	ensitlm::addr_t start_reg_address = LCD_CONTROLER_START_ADDRESS + LCDC_START_REG;
-	ensitlm::data_t start_trigger = 1;
-	print_debug(start_reg_address, start_trigger);
-	response_status = initiator.write(start_reg_address, start_trigger);
-	if (response_status == tlm::TLM_ADDRESS_ERROR_RESPONSE) {
-		return;
-	}
-	error_handling(response_status);
-
-	// Refresh LCDC
-	ensitlm::addr_t interrupt_register_address = LCD_CONTROLER_START_ADDRESS + LCDC_INT_REG;
-	ensitlm::data_t deassert_interrupt_data = 0;
-	print_debug(interrupt_register_address, deassert_interrupt_data);
-	response_status = initiator.write(interrupt_register_address, deassert_interrupt_data);
-	error_handling(response_status);
 }
 
 void Generator::convert_rom_to_lcdc_pixels(ensitlm::data_t rom_pixels, ensitlm::data_t &first_part_pixels, ensitlm::data_t &second_part_pixels) {
@@ -134,20 +117,41 @@ void Generator::convert_rom_to_lcdc_pixels(ensitlm::data_t rom_pixels, ensitlm::
 	second_part_pixels = lcdc_second_part_pixels;
 }
 
-void Generator::writeRomImage(void) {
-	// Init the ADDR_REG of the LCDC
+void Generator::init_lcdc(void) {
 	ensitlm::addr_t addr_reg_address = LCD_CONTROLER_START_ADDRESS + LCDC_ADDR_REG;
 	ensitlm::data_t video_memory_buffer_address = VIDEO_MEMORY_START_ADDRESS;
 	print_debug(addr_reg_address, video_memory_buffer_address);
 	tlm::tlm_response_status response_status = initiator.write(addr_reg_address, video_memory_buffer_address);
 	error_handling(response_status);
+}
 
+void Generator::start_lcdc(void) {
+	ensitlm::addr_t start_reg_address = LCD_CONTROLER_START_ADDRESS + LCDC_START_REG;
+	ensitlm::data_t start_trigger = 1;
+	print_debug(start_reg_address, start_trigger);
+	tlm::tlm_response_status response_status = initiator.write(start_reg_address, start_trigger);
+	if (response_status == tlm::TLM_ADDRESS_ERROR_RESPONSE) {
+		return;
+	}
+	error_handling(response_status);
+}
+
+void Generator::refresh_lcdc(void) {
+	ensitlm::addr_t interrupt_register_address = LCD_CONTROLER_START_ADDRESS + LCDC_INT_REG;
+	ensitlm::data_t deassert_interrupt_data = 0;
+	print_debug(interrupt_register_address, deassert_interrupt_data);
+	tlm::tlm_response_status response_status = initiator.write(interrupt_register_address, deassert_interrupt_data);
+	error_handling(response_status);
+}
+
+void Generator::writeRomImage(void) {
 	// Transfert ROM image to LCDC image format in Video memory
 	ensitlm::data_t rom_eight_pixels;
 	ensitlm::addr_t cur_rom_address_pointer = ROM_START_ADDRESS;
 	ensitlm::data_t lcdc_first_part_pixels;
 	ensitlm::data_t lcdc_second_part_pixels;
 	ensitlm::addr_t cur_video_address = VIDEO_MEMORY_START_ADDRESS;
+	tlm::tlm_response_status response_status;
 	while (cur_rom_address_pointer < ROM_START_ADDRESS + ROM_SIZE) {
 		// Request ROM
 		response_status = initiator.read(cur_rom_address_pointer, rom_eight_pixels);
@@ -171,27 +175,37 @@ void Generator::writeRomImage(void) {
 		cur_video_address += 4;
 		cur_rom_address_pointer += 4;
 	}
+}
 
-	// Start the LCDC
-	ensitlm::addr_t start_reg_address = LCD_CONTROLER_START_ADDRESS + LCDC_START_REG;
-	ensitlm::data_t start_trigger = 1;
-	print_debug(start_reg_address, start_trigger);
-	response_status = initiator.write(start_reg_address, start_trigger);
-	if (response_status == tlm::TLM_ADDRESS_ERROR_RESPONSE) {
-		return;
-	}
-	error_handling(response_status);
-
-	// Refresh LCDC
-	ensitlm::addr_t interrupt_register_address = LCD_CONTROLER_START_ADDRESS + LCDC_INT_REG;
-	ensitlm::data_t deassert_interrupt_data = 0;
-	print_debug(interrupt_register_address, deassert_interrupt_data);
-	response_status = initiator.write(interrupt_register_address, deassert_interrupt_data);
-	error_handling(response_status);
+void Generator::testROM(void) {
+	init_lcdc();
+	writeRomImage();
+	start_lcdc();
+	refresh_lcdc();
 }
 
 void Generator::idle(void) {}
 
+void Generator::main(void) {
+	writeRomImage();
+	init_lcdc();
+	start_lcdc();
+	int count = 0;
+	while (true) {
+		wait(irq_event);
+		writePixel(count);
+		cout << "main loop iteration " << count << endl;
+		count++;
+		refresh_lcdc();
+	}
+}
+
+void Generator::handle_irq(void) {
+	irq_event.notify();
+}
+
 Generator::Generator(sc_core::sc_module_name name) : sc_core::sc_module(name) {
-	SC_THREAD(writeRomImage);
+	SC_THREAD(main);
+	SC_METHOD(handle_irq);
+	sensitive << irq;
 }

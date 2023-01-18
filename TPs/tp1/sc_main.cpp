@@ -28,14 +28,18 @@ int sc_main(int argc, char **argv)
 	lcdc.initiator_socket.bind(bus.target);
 	lcdc.target_socket.bind(bus.initiator);
 	
-	sc_signal<bool> lcdc_generator_interruption_signal("lcdc_generator_interruption_signal");
-	lcdc.display_intr.bind(lcdc_generator_interruption_signal);
-	generator.interruption_port.bind(lcdc_generator_interruption_signal);
+	// sc_signal<bool> lcdc_generator_interruption_signal("lcdc_generator_interruption_signal");
+	// lcdc.display_intr.bind(lcdc_generator_interruption_signal);
+	// generator.interruption_port.bind(lcdc_generator_interruption_signal);
 
 	ROM rom("ROM");
 	// ROM ports : [87 096; 125 496]
 	bus.map(rom.socket, ROM_START_ADDRESS, ROM_SIZE);
 	bus.initiator.bind(rom.socket);
+
+	sc_signal<bool,SC_MANY_WRITERS> irq_signal("IRQ");
+	generator.irq.bind(irq_signal);
+	lcdc.display_intr.bind(irq_signal);
 
 	sc_core::sc_start();
 	return 0;
