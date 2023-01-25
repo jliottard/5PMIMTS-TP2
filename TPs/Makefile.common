@@ -40,7 +40,7 @@ CXX = g++
 CPPFLAGS  = -I$(SYSTEMC)/include 
 CPPFLAGS += -I$(ENSITLM) $(SDLCC)
 CPPFLAGS += -MMD -MP -MF $(basename $@).d
-CXXFLAGS = -O3 -g -Wall -Wextra -Winvalid-pch -Wno-unused-parameter -std=c++17
+CXXFLAGS = -O3 -g -Wall -Wextra -Winvalid-pch -Wno-unused-parameter
 # Used when using SDL, hence precompiled header use it, hence we have
 # to use it everywhere if we want PCH support:
 CXXFLAGS += -D_GNU_SOURCE=1 -D_REENTRANT
